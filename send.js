@@ -35,7 +35,7 @@
             console.log("Сообщение для отправки:", message);
             
             // Отправляем в Telegram
-            const url = 'https://api.telegram.org/bot' + window.BOT_TOKEN + '/sendMessage';
+            const url = 'https://cors-anywhere.herokuapp.com/https://api.telegram.org/bot' + window.BOT_TOKEN + '/sendMessage';
             
             fetch(url, {
                 method: 'POST',
